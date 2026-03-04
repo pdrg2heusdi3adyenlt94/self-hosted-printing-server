@@ -1,11 +1,17 @@
 import { env } from '@/src/utils/env/load-env';
 import { Injectable } from '@nestjs/common';
+import { exec as execCb } from 'child_process';
 import { randomInt } from 'crypto';
 import { addSeconds } from 'date-fns';
+import { mkdtemp, readFile, rm, writeFile } from 'fs/promises';
 import ipp, { Printer } from 'ipp';
+import { tmpdir } from 'os';
+import { join } from 'path';
 import Pngtojpeg from 'png-to-jpeg';
+import { promisify } from 'util';
 import { PrismaService } from '../prisma';
 const pngtojpeg = Pngtojpeg();
+const exec = promisify(execCb);
 
 export class DocumentNotSupportedError extends Error {}
 
@@ -28,9 +34,32 @@ export class PrintService {
     const filename = file.originalname;
     const pages: Buffer[] = [];
 
-    if (filename.endsWith('.pdf')) {
-      console.log(file.buffer);
-      const doc = await pdf(file.buffer, { scale: 2 });
+    let pdfBuffer: Buffer | null = null;
+
+    if (
+      filename.endsWith('.doc') ||
+      filename.endsWith('.docx') ||
+      filename.endsWith('.odt') ||
+      filename.endsWith('.rtf')
+    ) {
+      // Convert Word/ODF formats to PDF via LibreOffice headless, then fall through to PDF handling.
+      const tmpDir = await mkdtemp(join(tmpdir(), 'print-'));
+      try {
+        const inputPath = join(tmpDir, filename);
+        await writeFile(inputPath, file.buffer);
+        await exec(
+          `libreoffice --headless --convert-to pdf --outdir "${tmpDir}" "${inputPath}"`,
+        );
+        const pdfName = filename.replace(/\.[^.]+$/, '.pdf');
+        pdfBuffer = await readFile(join(tmpDir, pdfName));
+      } finally {
+        await rm(tmpDir, { recursive: true, force: true });
+      }
+    }
+
+    if (pdfBuffer !== null || filename.endsWith('.pdf')) {
+      const buf = pdfBuffer ?? file.buffer;
+      const doc = await pdf(buf, { scale: 2 });
       for await (const image of doc) {
         pages.push(await pngtojpeg(image));
       }

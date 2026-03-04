@@ -91,7 +91,15 @@ function PrintPage() {
         });
       }}
       onReject={(files) => console.log("rejected files", files)}
-      accept={["application/pdf", "image/png", "image/jpeg"]}
+      accept={[
+        "application/pdf",
+        "image/png",
+        "image/jpeg",
+        "application/msword",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "application/vnd.oasis.opendocument.text",
+        "application/rtf",
+      ]}
       flex={1}
     >
       <Group
@@ -133,7 +141,7 @@ function PrintPage() {
             inline
             mt={7}
           >
-            Accepted: PDF, PNG and JPEG
+            Accepted: PDF, PNG, JPEG, DOC, DOCX
           </Text>
         </div>
       </Group>
