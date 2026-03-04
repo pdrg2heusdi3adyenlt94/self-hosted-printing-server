@@ -11,4 +11,4 @@ else
   echo "WARNING: PUBLIC_API_URL is not set. API calls will fail."
 fi
 
-exec serve --config serve.json dist
+exec serve --single dist

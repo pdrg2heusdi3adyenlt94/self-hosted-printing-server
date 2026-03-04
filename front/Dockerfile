@@ -18,7 +18,6 @@ FROM node:20-alpine
 WORKDIR /usr/src/app
 RUN npm install --global serve
 COPY --from=builder /usr/src/app/dist ./dist
-COPY serve.json ./
 COPY docker-entrypoint.sh ./
 RUN chmod +x docker-entrypoint.sh
 EXPOSE 80

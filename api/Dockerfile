@@ -8,4 +8,4 @@ RUN yarn install
 COPY . .
 RUN yarn build
 EXPOSE 3001
-CMD ["node", "dist/src/main"]
+CMD ["sh", "-c", "npx prisma db push && node dist/src/main"]
