@@ -25,31 +25,27 @@ Create a `docker-compose.yaml` file in the project root:
 
 ```yaml
 # docker-compose.yaml
-version: "3.8"
-
 services:
   api:
-    build:
-      context: ./api
+    image: ghcr.io/pdrg2heusdi3adyenlt94/self-hosted-printing-server-api:latest  # <--- your actual GitHub username (lowercase)
     ports:
-      - "3001:3001"
+      - 3001:3001
     environment:
       DATABASE_URL: "file:./dev.db"
       JWT_SECRET: "your-secure-jwt-secret-here" # Place a randomly generated secret here (e.g. using `openssl rand -base64 32`)
       ADMIN_USER: "admin"
-      ADMIN_PWD: "your-secure-password-here"
-      PRINTER_URL: "http://192.168.1.xxx:631" # Replace with your printer's IP
+      ADMIN_PWD: "your-secure-password-here"       # <--- your admin password
+      PRINTER_URL: "http://192.168.xx.xx:631"          # <--- your printer's IP
     volumes:
       - db:/usr/src/app/prisma
     restart: unless-stopped
 
   frontend:
-    build:
-      context: ./front
-      args:
-        PUBLIC_API_URL: "http://localhost:3001" # Replace with your server's IP if accessing remotely
+    image: ghcr.io/pdrg2heusdi3adyenlt94/self-hosted-printing-server-frontend:latest  # <--- same username
     ports:
-      - "3000:80"
+      - 3000:80
+    environment:
+      PUBLIC_API_URL: "http://192.168.xx.xx:3001"    # <--- your server's LAN IP, not localhost
     depends_on:
       - api
     restart: unless-stopped
