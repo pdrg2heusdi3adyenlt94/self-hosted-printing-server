@@ -1,12 +1,12 @@
 # ---- Build stage ----
 FROM node:20 AS builder
 WORKDIR /usr/src/app
-COPY package*.json ./
-COPY .yarnrc.yml ./
-COPY .yarn ./.yarn
+# Copy dependency manifests only so yarn install is cached as its own layer.
+# yarn.lock must be included so the install is reproducible.
+COPY package.json yarn.lock .yarnrc.yml ./
 RUN corepack enable
 RUN corepack install
-RUN yarn install
+RUN yarn install --immutable
 COPY . .
 # Build with a placeholder so the image stays generic.
 # The real URL is injected at container start via docker-entrypoint.sh.

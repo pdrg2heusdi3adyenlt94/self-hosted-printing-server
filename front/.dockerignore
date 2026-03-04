@@ -5,3 +5,6 @@ dist
 .git
 *.local
 *.local.*
+# Yarn Berry install state is generated during docker build;
+# the dev-machine copy must not overwrite it.
+.yarn
