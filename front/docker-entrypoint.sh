@@ -11,4 +11,4 @@ else
   echo "WARNING: PUBLIC_API_URL is not set. API calls will fail."
 fi
 
-exec serve --single dist
+exec serve --single --listen tcp:0.0.0.0:80 dist
