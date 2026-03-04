@@ -1,9 +1,11 @@
 # ---- Build stage ----
-FROM node:20-alpine AS builder
+FROM node:20 AS builder
 WORKDIR /usr/src/app
 COPY package*.json ./
 COPY .yarnrc.yml ./
-RUN corepack enable && corepack install
+COPY .yarn ./.yarn
+RUN corepack enable
+RUN corepack install
 RUN yarn install
 COPY . .
 # Build with a placeholder so the image stays generic.
